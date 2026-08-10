@@ -558,7 +558,7 @@
                                           <object class="GtkLabel" id="detail_stats_label">
                                             <property name="xalign">0</property>
                                             <style>
-                                              <class name="mono-dim"/>
+                                              <class name="detail-meta"/>
                                             </style>
                                           </object>
                                         </child>
@@ -740,19 +740,20 @@
                     <child>
                       <object class="GtkBox">
                         <property name="orientation">horizontal</property>
-                        <property name="halign">center</property>
-                        <property name="spacing">18</property>
+                        <property name="hexpand">true</property>
+                        <property name="homogeneous">true</property>
+                        <property name="spacing">8</property>
                         <child>
-                          <object class="GtkToggleButton" id="shuffle_btn">
-                            <property name="tooltip-text" translatable="yes">Shuffle</property>
+                          <object class="GtkToggleButton" id="repeat_btn">
+                            <property name="tooltip-text" translatable="yes">Repeat</property>
                             <property name="valign">center</property>
                             <style>
                               <class name="flat"/>
-                              <class name="mini-transport"/>
+                              <class name="transport-box"/>
                             </style>
                             <child>
                               <object class="GtkImage">
-                                <property name="icon-name">lyre-shuffle-symbolic</property>
+                                <property name="icon-name">lyre-repeat-symbolic</property>
                                 <property name="pixel-size">14</property>
                               </object>
                             </child>
@@ -760,9 +761,10 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="prev_btn">
+                            <property name="valign">center</property>
                             <style>
                               <class name="flat"/>
-                              <class name="transport-btn"/>
+                              <class name="transport-box"/>
                             </style>
                             <child>
                               <object class="GtkImage">
@@ -774,6 +776,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="play_btn">
+                            <property name="valign">center</property>
                             <style>
                               <class name="flat"/>
                               <class name="play-btn"/>
@@ -788,9 +791,10 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="next_btn">
+                            <property name="valign">center</property>
                             <style>
                               <class name="flat"/>
-                              <class name="transport-btn"/>
+                              <class name="transport-box"/>
                             </style>
                             <child>
                               <object class="GtkImage">
@@ -801,16 +805,16 @@
                           </object>
                         </child>
                         <child>
-                          <object class="GtkToggleButton" id="repeat_btn">
-                            <property name="tooltip-text" translatable="yes">Repeat</property>
+                          <object class="GtkToggleButton" id="shuffle_btn">
+                            <property name="tooltip-text" translatable="yes">Shuffle</property>
                             <property name="valign">center</property>
                             <style>
                               <class name="flat"/>
-                              <class name="mini-transport"/>
+                              <class name="transport-box"/>
                             </style>
                             <child>
                               <object class="GtkImage">
-                                <property name="icon-name">lyre-repeat-symbolic</property>
+                                <property name="icon-name">lyre-shuffle-symbolic</property>
                                 <property name="pixel-size">14</property>
                               </object>
                             </child>

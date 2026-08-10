@@ -228,6 +228,14 @@ checkbutton radio:checked {
   color: @window_fg_color;
 }
 
+/* Album cards carry the artist in the lavender accent (matching the
+   "Browse by album" mock) rather than the neutral dim used elsewhere. */
+.card-subtitle {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: @lyre_lavender;
+}
+
 gridview.card-grid,
 gridview.card-grid > child {
   background: none;
@@ -250,6 +258,14 @@ gridview.card-grid > child:focus {
   font-weight: 600;
   color: @window_fg_color;
   letter-spacing: -0.01em;
+}
+
+/* Detail heading meta ("Artist · Year · N tracks") in the lavender accent,
+   as in the album-details mock. */
+.detail-meta {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  color: @lyre_lavender;
 }
 
 .chip-label {
@@ -364,39 +380,29 @@ listview.track-cells {
   color: alpha(@lyre_text_soft, 0.85);
 }
 
-.transport-btn {
-  color: alpha(@window_fg_color, 0.65);
-  font-size: 18px;
-  padding: 0;
+/* Boxed transport controls — the Easel ".btn" component. Five equal rounded
+   buttons fill the player panel: skip/shuffle/repeat are the secondary
+   (soft-filled) variant, the play button is the lavender primary. The
+   shuffle/repeat toggles tint lavender when active. */
+.transport-box {
   min-width: 0;
-  min-height: 0;
-  background: none;
+  min-height: 40px;
+  padding: 8px;
+  border-radius: 10px;
+  color: alpha(@window_fg_color, 0.7);
+  background-color: alpha(@window_fg_color, 0.07);
   border: none;
   box-shadow: none;
 }
 
-.transport-btn:hover {
+.transport-box:hover {
   color: @window_fg_color;
+  background-color: alpha(@window_fg_color, 0.12);
 }
 
-.mini-transport {
-  color: alpha(@window_fg_color, 0.4);
-  padding: 2px;
-  min-width: 0;
-  min-height: 0;
-  background: none;
-  border: none;
-  box-shadow: none;
-}
-
-.mini-transport:hover {
-  color: @window_fg_color;
-  background: none;
-}
-
-.mini-transport:checked {
+.transport-box:checked {
   color: @lyre_lavender;
-  background: none;
+  background-color: alpha(@lyre_lavender, 0.16);
 }
 
 .upnext-clear {
@@ -415,13 +421,13 @@ listview.track-cells {
 }
 
 .play-btn {
-  min-width: 44px;
-  min-height: 44px;
-  border-radius: 9999px;
+  min-width: 0;
+  min-height: 40px;
+  border-radius: 10px;
   background-color: @lyre_lavender;
   color: #ffffff;
   font-size: 16px;
-  padding: 0;
+  padding: 8px;
   box-shadow: none;
 }
 
@@ -585,6 +591,11 @@ window.dark .time-label {
   color: alpha(@lyre_text_soft_dark, 0.85);
 }
 
+window.dark .card-subtitle,
+window.dark .detail-meta {
+  color: @lyre_lavender_light;
+}
+
 window.dark .swatch.chip-selected {
   border-color: @lyre_lavender_light;
 }
@@ -601,8 +612,9 @@ window.dark .track-title.playing {
   color: @lyre_lavender_light;
 }
 
-window.dark .mini-transport:checked {
+window.dark .transport-box:checked {
   color: @lyre_lavender_light;
+  background-color: alpha(@lyre_lavender_light, 0.20);
 }
 
 window.dark .play-btn {

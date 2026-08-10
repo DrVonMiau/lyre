@@ -672,6 +672,10 @@ class MusicWindow(Adw.ApplicationWindow):
         box.swatch.set_path(album.cover_path or None)
         box.title.set_label(album.title)
         box.subtitle.set_label(album.artist)
+        # Album cards show the artist in the lavender accent (Browse-by-album
+        # mock); other card kinds keep the neutral dim subtitle.
+        box.subtitle.remove_css_class("mono-dim-sm")
+        box.subtitle.add_css_class("card-subtitle")
         self._attach_menu(box, "album", album.id, ALBUM_ENTRIES)
 
     def _bind_playlist_card(self, item):
