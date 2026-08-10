@@ -54,6 +54,20 @@
 		<control>pointing</control>
 	</supports>
 	<releases>
+		<release version="0.4.0" date="2026-08-10">
+			<description>
+				<p>A design refresh of the album views, shared with Lyre's sibling app Easel:</p>
+				<ul>
+					<li>Album cards and album headings now carry the artist and details in the lavender accent</li>
+					<li>New play, pause, skip, shuffle and repeat icons, shown in boxed transport buttons</li>
+					<li>Favourites use a heart that fills with gold when set, in place of the star</li>
+					<li>A larger, always-visible grab knob on the seek and volume sliders</li>
+					<li>Library tabs are now Albums / Tracks · Favourites / Playlists; artists open from any track or album</li>
+					<li>Sort albums by name or artist</li>
+					<li>Searching the album view for a song now surfaces the album that contains it</li>
+				</ul>
+			</description>
+		</release>
 		<release version="0.3.0" date="2026-07-20">
 			<description>
 				<p>Museic is now Lyre — same player, new name. The app identity changed to io.github.drvonmiau.Lyre, so settings and the library index start fresh; your music files are untouched.</p>
