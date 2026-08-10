@@ -697,8 +697,23 @@ class MusicWindow(Adw.ApplicationWindow):
         text_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, hexpand=True)
         text_box.append(title_lbl)
         text_box.append(sub_lbl)
-        album_lbl = Gtk.Label(xalign=0, ellipsize=Pango.EllipsizeMode.END, css_classes=["mono-dim"],
+        album_lbl = Gtk.Label(xalign=0, ellipsize=Pango.EllipsizeMode.END,
+                               css_classes=["mono-dim", "track-album-link"],
                                width_chars=14)
+        # Clicking the album name jumps to that album's detail page. A CAPTURE
+        # gesture claims the click so the surrounding row doesn't also start
+        # playback.
+        album_gesture = Gtk.GestureClick(button=1)
+        album_gesture.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+
+        def on_album_clicked(gesture, _n, _x, _y, r=row):
+            if r._album_id:
+                gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+                self._open_album(r._album_id)
+
+        album_gesture.connect("pressed", on_album_clicked)
+        album_lbl.add_controller(album_gesture)
+        album_lbl.set_cursor(POINTER_CURSOR)
         duration_lbl = Gtk.Label(css_classes=["mono-dim"])
         heart_btn = Gtk.Button(icon_name="lyre-heart-symbolic", valign=Gtk.Align.CENTER,
                                 tooltip_text="Favourite",
@@ -714,6 +729,7 @@ class MusicWindow(Adw.ApplicationWindow):
         row.index_lbl, row.title_lbl, row.sub_lbl = index_lbl, title_lbl, sub_lbl
         row.album_lbl, row.duration_lbl, row.heart_btn = album_lbl, duration_lbl, heart_btn
         row._track_id = None
+        row._album_id = None
         return row
 
     def _on_heart_clicked(self, row):
@@ -725,12 +741,13 @@ class MusicWindow(Adw.ApplicationWindow):
             self._reload_all()
 
     def _fill_track_row(self, row, *, title, sub, album_text, duration, index, playing,
-                        track_id=None, fav=False):
+                        track_id=None, fav=False, album_id=None):
         row.index_lbl.set_label("♪" if playing else f"{index + 1:02d}")
         row.title_lbl.set_label(title)
         row.sub_lbl.set_label(sub)
         row.duration_lbl.set_label(_fmt_time(duration))
         row._track_id = track_id
+        row._album_id = album_id
         row.heart_btn.set_icon_name("lyre-heart-filled-symbolic" if fav else "lyre-heart-symbolic")
         if fav:
             row.heart_btn.add_css_class("faved")
@@ -768,7 +785,7 @@ class MusicWindow(Adw.ApplicationWindow):
         index = tracks.index(t) if t in tracks else 0
         self._fill_track_row(row, title=t.title, sub=t.artist, album_text=t.album,
                               duration=t.duration, index=index, playing=self._is_playing_track(t.id),
-                              track_id=t.id, fav=t.favorite)
+                              track_id=t.id, fav=t.favorite, album_id=t.album_id)
         self._attach_menu(row, "track", t.id, TRACK_ENTRIES)
 
     # ---------- context menus ----------

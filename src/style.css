@@ -321,6 +321,11 @@ gridview.card-grid > child:focus {
   color: @lyre_lavender;
 }
 
+/* The album name on a track row is a link to the album's detail page. */
+.track-album-link:hover {
+  color: @lyre_lavender;
+}
+
 listview > row,
 listview > row:hover,
 listview > row:selected,
@@ -610,6 +615,10 @@ window.dark .track-index.playing {
 }
 
 window.dark .track-title.playing {
+  color: @lyre_lavender_light;
+}
+
+window.dark .track-album-link:hover {
   color: @lyre_lavender_light;
 }
 
