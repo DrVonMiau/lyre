@@ -1640,9 +1640,17 @@ class MusicWindow(Adw.ApplicationWindow):
             if not q or q in a.name.lower():
                 self.artist_store.append(a)
 
+        # Albums also match when a track they contain matches the query, so
+        # searching for a song surfaces the album that includes it.
+        albums_with_track_hit = set()
+        if q:
+            for t in self._tracks_all:
+                if t.album_id and (q in t.title.lower() or q in t.artist.lower()):
+                    albums_with_track_hit.add(t.album_id)
         self.album_store.remove_all()
         for a in self._sorted_albums(self._albums_all):
-            if not q or q in a.title.lower() or q in a.artist.lower():
+            if (not q or q in a.title.lower() or q in a.artist.lower()
+                    or a.id in albums_with_track_hit):
                 self.album_store.append(a)
 
         self.track_store.remove_all()
