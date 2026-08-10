@@ -467,26 +467,19 @@ listview.track-cells {
   box-shadow: none;
 }
 
-/* Invisible until hovered, then a small round grab dot appears so it's
-   clear where to drag. */
+/* A large, always-visible round grab knob (Easel style). The knob's box is
+   bigger than the trough, so the negative margins keep the hairline bar
+   thin (14px knob − 2×6px = the 2px trough) while the dot stays prominent. */
 .progress-scale slider,
 .volume-scale slider {
-  min-width: 6px;
-  min-height: 6px;
-  margin: -2px;
+  min-width: 14px;
+  min-height: 14px;
+  margin: -6px;
   padding: 0;
   border-radius: 9999px;
   background-color: @lyre_lavender;
   border: 1px solid @window_bg_color;
   box-shadow: 0 1px 3px alpha(#000, 0.25);
-  opacity: 0;
-  transition: opacity 120ms ease;
-}
-
-.progress-scale:hover slider,
-.volume-scale:hover slider,
-.progress-scale slider:active,
-.volume-scale slider:active {
   opacity: 1;
 }
 

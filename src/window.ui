@@ -200,15 +200,6 @@
                               <class name="tab-group"/>
                             </style>
                             <child>
-                              <object class="GtkButton" id="tab_artists">
-                                <property name="label" translatable="yes">Artists</property>
-                                <style>
-                                  <class name="flat"/>
-                                  <class name="tab-btn"/>
-                                </style>
-                              </object>
-                            </child>
-                            <child>
                               <object class="GtkButton" id="tab_albums">
                                 <property name="label" translatable="yes">Albums</property>
                                 <style>
