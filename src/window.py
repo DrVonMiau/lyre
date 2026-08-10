@@ -73,7 +73,7 @@ THEME_SCHEMES = {
     "system": Adw.ColorScheme.DEFAULT,
 }
 
-VIEW_NAMES = ("artists", "albums", "tracks", "favourites", "playlists")
+VIEW_NAMES = ("albums", "tracks", "favourites", "playlists")
 
 # Fixed spacing scale (px). Every hand-set gap in the app should use one of
 # these; dynamic spacing (paper margins, paper-player gap) lives in
@@ -86,8 +86,7 @@ POINTER_CURSOR = Gdk.Cursor.new_from_name("pointer")
 # Sort options per tab group (favourites shares the tracks group).
 SORT_OPTIONS = {
     "artists": [("Name", "name"), ("Most played", "plays")],
-    "albums": [("Artist", "artist"), ("Title", "title"), ("Year", "year"),
-               ("Most played", "plays")],
+    "albums": [("Name", "title"), ("Artist", "artist")],
     "tracks": [("Title", "title"), ("Artist", "artist"), ("Album", "album"),
                ("Most played", "plays"), ("Recently added", "recent")],
 }
@@ -118,7 +117,6 @@ class MusicWindow(Adw.ApplicationWindow):
     menu_button = Gtk.Template.Child()
 
     middle_stack = Gtk.Template.Child()
-    tab_artists = Gtk.Template.Child()
     tab_albums = Gtk.Template.Child()
     tab_tracks = Gtk.Template.Child()
     tab_favourites = Gtk.Template.Child()
@@ -175,8 +173,8 @@ class MusicWindow(Adw.ApplicationWindow):
         self._inhibit_cookie = 0
         self._sleep_source = None
 
-        self.view = "artists"
-        self._last_tab = "artists"
+        self.view = "albums"
+        self._last_tab = "albums"
         self._detail_mode = "artist"  # artist | album | playlist
         self._detail_artist_id = None
         self._detail_album_id = None
@@ -203,7 +201,6 @@ class MusicWindow(Adw.ApplicationWindow):
         self._album_plays = {}
 
         self._tab_buttons = {
-            "artists": self.tab_artists,
             "albums": self.tab_albums,
             "tracks": self.tab_tracks,
             "favourites": self.tab_favourites,
@@ -302,7 +299,7 @@ class MusicWindow(Adw.ApplicationWindow):
         self.shuffle_btn.set_active(self.settings.get_boolean("shuffle"))
         self.repeat_btn.set_active(self.settings.get_boolean("repeat"))
         saved_tab = self.settings.get_string("last-tab")
-        self._select_tab(saved_tab if saved_tab in VIEW_NAMES else "artists")
+        self._select_tab(saved_tab if saved_tab in VIEW_NAMES else "albums")
 
     def _restore_queue(self):
         """Bring back the last session's queue, paused on the saved track."""
@@ -350,7 +347,7 @@ class MusicWindow(Adw.ApplicationWindow):
         self.settings.set_boolean("shuffle", self.shuffle_btn.get_active())
         self.settings.set_boolean("repeat", self.repeat_btn.get_active())
         self.settings.set_string("last-tab",
-                                 self._last_tab if self._last_tab in VIEW_NAMES else "artists")
+                                 self._last_tab if self._last_tab in VIEW_NAMES else "albums")
         if self.queue.current:
             self.settings.set_string("queue", json.dumps({
                 "current": self.queue.current.id,
@@ -536,7 +533,7 @@ class MusicWindow(Adw.ApplicationWindow):
 
         sort_mode = Gio.SimpleAction.new_stateful(
             "sort-mode", GLib.VariantType.new("s"),
-            GLib.Variant("s", self._sort["artists"]))
+            GLib.Variant("s", self._sort["albums"]))
         sort_mode.connect("activate", self._on_sort_mode)
         self.add_action(sort_mode)
 
@@ -672,6 +669,10 @@ class MusicWindow(Adw.ApplicationWindow):
         box.swatch.set_path(album.cover_path or None)
         box.title.set_label(album.title)
         box.subtitle.set_label(album.artist)
+        # Album cards show the artist in the lavender accent (Browse-by-album
+        # mock); other card kinds keep the neutral dim subtitle.
+        box.subtitle.remove_css_class("mono-dim-sm")
+        box.subtitle.add_css_class("card-subtitle")
         self._attach_menu(box, "album", album.id, ALBUM_ENTRIES)
 
     def _bind_playlist_card(self, item):
@@ -696,10 +697,25 @@ class MusicWindow(Adw.ApplicationWindow):
         text_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, hexpand=True)
         text_box.append(title_lbl)
         text_box.append(sub_lbl)
-        album_lbl = Gtk.Label(xalign=0, ellipsize=Pango.EllipsizeMode.END, css_classes=["mono-dim"],
+        album_lbl = Gtk.Label(xalign=0, ellipsize=Pango.EllipsizeMode.END,
+                               css_classes=["mono-dim", "track-album-link"],
                                width_chars=14)
+        # Clicking the album name jumps to that album's detail page. A CAPTURE
+        # gesture claims the click so the surrounding row doesn't also start
+        # playback.
+        album_gesture = Gtk.GestureClick(button=1)
+        album_gesture.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+
+        def on_album_clicked(gesture, _n, _x, _y, r=row):
+            if r._album_id:
+                gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+                self._open_album(r._album_id)
+
+        album_gesture.connect("pressed", on_album_clicked)
+        album_lbl.add_controller(album_gesture)
+        album_lbl.set_cursor(POINTER_CURSOR)
         duration_lbl = Gtk.Label(css_classes=["mono-dim"])
-        heart_btn = Gtk.Button(icon_name="non-starred-symbolic", valign=Gtk.Align.CENTER,
+        heart_btn = Gtk.Button(icon_name="lyre-heart-symbolic", valign=Gtk.Align.CENTER,
                                 tooltip_text="Favourite",
                                 css_classes=["flat", "heart-btn"])
         heart_btn.connect("clicked", lambda _b, r=row: self._on_heart_clicked(r))
@@ -713,6 +729,7 @@ class MusicWindow(Adw.ApplicationWindow):
         row.index_lbl, row.title_lbl, row.sub_lbl = index_lbl, title_lbl, sub_lbl
         row.album_lbl, row.duration_lbl, row.heart_btn = album_lbl, duration_lbl, heart_btn
         row._track_id = None
+        row._album_id = None
         return row
 
     def _on_heart_clicked(self, row):
@@ -724,13 +741,14 @@ class MusicWindow(Adw.ApplicationWindow):
             self._reload_all()
 
     def _fill_track_row(self, row, *, title, sub, album_text, duration, index, playing,
-                        track_id=None, fav=False):
+                        track_id=None, fav=False, album_id=None):
         row.index_lbl.set_label("♪" if playing else f"{index + 1:02d}")
         row.title_lbl.set_label(title)
         row.sub_lbl.set_label(sub)
         row.duration_lbl.set_label(_fmt_time(duration))
         row._track_id = track_id
-        row.heart_btn.set_icon_name("starred-symbolic" if fav else "non-starred-symbolic")
+        row._album_id = album_id
+        row.heart_btn.set_icon_name("lyre-heart-filled-symbolic" if fav else "lyre-heart-symbolic")
         if fav:
             row.heart_btn.add_css_class("faved")
         else:
@@ -767,7 +785,7 @@ class MusicWindow(Adw.ApplicationWindow):
         index = tracks.index(t) if t in tracks else 0
         self._fill_track_row(row, title=t.title, sub=t.artist, album_text=t.album,
                               duration=t.duration, index=index, playing=self._is_playing_track(t.id),
-                              track_id=t.id, fav=t.favorite)
+                              track_id=t.id, fav=t.favorite, album_id=t.album_id)
         self._attach_menu(row, "track", t.id, TRACK_ENTRIES)
 
     # ---------- context menus ----------
@@ -872,7 +890,8 @@ class MusicWindow(Adw.ApplicationWindow):
         if name == "show-artist":
             artist_id = item_id if kind == "artist" else self._lookup_related(kind, item_id, "artist_id")
             if artist_id:
-                self._select_tab("artists")
+                # Artists no longer have a top-level tab; open the detail
+                # directly so Back returns to wherever the user came from.
                 self._open_artist(artist_id)
             return
         if name == "show-album":
@@ -1362,7 +1381,7 @@ class MusicWindow(Adw.ApplicationWindow):
         self.view = name
         self._last_tab = name
         # An empty library shows the "No Music Yet" page instead of blank grids.
-        if not self._tracks_all and name in ("artists", "albums", "tracks", "favourites"):
+        if not self._tracks_all and name in ("albums", "tracks", "favourites"):
             self.paper_stack.set_visible_child_name("empty")
         else:
             self.paper_stack.set_visible_child_name(name)
@@ -1412,7 +1431,7 @@ class MusicWindow(Adw.ApplicationWindow):
         self._render_detail()
 
     def _go_back(self):
-        self._select_tab(self._last_tab if self._last_tab in VIEW_NAMES else "artists")
+        self._select_tab(self._last_tab if self._last_tab in VIEW_NAMES else "albums")
 
     def _clear_box(self, box):
         child = box.get_first_child()
@@ -1638,9 +1657,17 @@ class MusicWindow(Adw.ApplicationWindow):
             if not q or q in a.name.lower():
                 self.artist_store.append(a)
 
+        # Albums also match when a track they contain matches the query, so
+        # searching for a song surfaces the album that includes it.
+        albums_with_track_hit = set()
+        if q:
+            for t in self._tracks_all:
+                if t.album_id and (q in t.title.lower() or q in t.artist.lower()):
+                    albums_with_track_hit.add(t.album_id)
         self.album_store.remove_all()
         for a in self._sorted_albums(self._albums_all):
-            if not q or q in a.title.lower() or q in a.artist.lower():
+            if (not q or q in a.title.lower() or q in a.artist.lower()
+                    or a.id in albums_with_track_hit):
                 self.album_store.append(a)
 
         self.track_store.remove_all()

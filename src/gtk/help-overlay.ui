@@ -53,7 +53,7 @@
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="title" translatable="yes" context="shortcut window">Switch tab</property>
-                <property name="accelerator">&lt;Primary&gt;1...5</property>
+                <property name="accelerator">&lt;Primary&gt;1...4</property>
               </object>
             </child>
           </object>

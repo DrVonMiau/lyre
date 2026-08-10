@@ -36,7 +36,7 @@
 			<summary>Repeat the queue</summary>
 		</key>
 		<key name="last-tab" type="s">
-			<default>'artists'</default>
+			<default>'albums'</default>
 			<summary>Last active library tab</summary>
 		</key>
 		<key name="queue" type="s">
