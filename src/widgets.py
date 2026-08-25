@@ -77,21 +77,38 @@ class Swatch(Gtk.Widget):
             if child.get_parent() is self:
                 child.unparent()
 
+    def do_get_request_mode(self):
+        # Height follows width, so the swatch is a true 1:1 square whatever
+        # width the parent gives it — a grid column stretched to fill the
+        # window, or the fixed-width player panel.
+        return Gtk.SizeRequestMode.HEIGHT_FOR_WIDTH
+
     def do_measure(self, orientation, for_size):
         for child in (self._picture, self._area, self._label):
             child.measure(orientation, -1)
+        if orientation == Gtk.Orientation.VERTICAL and for_size > 0:
+            # Square: as tall as the width we're being allocated.
+            return (for_size, for_size, -1, -1)
         return (self._size, self._size, -1, -1)
 
     def do_size_allocate(self, width, height, baseline):
+        # Height-for-width keeps width == height, but clamp to a centred
+        # square as a backstop so the artwork never stretches even if a
+        # parent hands us a non-square box.
+        side = min(width, height)
+        off_x = (width - side) // 2
+        off_y = (height - side) // 2
+        square = Gsk.Transform.new().translate(Graphene.Point().init(off_x, off_y))
         for child in (self._picture, self._area):
             if child.get_visible():
-                child.allocate(width, height, -1, None)
+                child.allocate(side, side, -1, square)
         if self._label.get_visible():
             _lmin, lnat, _b1, _b2 = self._label.measure(Gtk.Orientation.HORIZONTAL, -1)
-            label_w = min(lnat, width)
+            label_w = min(lnat, side)
             _hmin, hnat, _b3, _b4 = self._label.measure(Gtk.Orientation.VERTICAL, label_w)
             transform = Gsk.Transform.new().translate(
-                Graphene.Point().init((width - label_w) / 2, (height - hnat) / 2)
+                Graphene.Point().init(off_x + (side - label_w) / 2,
+                                      off_y + (side - hnat) / 2)
             )
             self._label.allocate(label_w, hnat, -1, transform)
 
