@@ -458,8 +458,11 @@ listview.track-cells {
 .volume-scale {
   min-height: 2px;
   min-width: 4px;
-  /* hairline bar, but a comfortable click/drag target */
-  padding: 8px 0;
+  /* hairline bar, but a comfortable click/drag target. The horizontal
+     padding insets the trough by the knob's overhang (14px knob, -6px
+     margins → 7px reaches past each end) so the always-visible dot is
+     not clipped at 0% / 100%. */
+  padding: 8px 8px;
 }
 
 .progress-scale trough,
