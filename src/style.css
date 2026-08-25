@@ -8,9 +8,11 @@
    IBM Plex Sans/Mono are bundled by the Flatpak manifest; the generic
    fallbacks only matter for non-Flatpak development runs. */
 
-/* Interactive accent */
-@define-color lyre_lavender #8a70bd;
-@define-color lyre_lavender_light #b6a3d8;
+/* Interactive accent — purple family: Purple 2 is the primary, Purple 1 the
+   lighter variation used on dark surfaces, Purple 3 the darker hover/pressed. */
+@define-color lyre_lavender #7567BE;
+@define-color lyre_lavender_light #9689DD;
+@define-color lyre_lavender_dark #4D428A;
 /* Favourites */
 @define-color lyre_gold #c1962b;
 @define-color lyre_gold_light #ddb964;
@@ -445,7 +447,7 @@ listview.track-cells {
 }
 
 .play-btn:hover {
-  background-color: shade(@lyre_lavender, 1.08);
+  background-color: @lyre_lavender_dark;
 }
 
 /* Flatten GtkScale into a thin progress/volume bar with no visible handle,
@@ -506,7 +508,7 @@ listview.track-cells {
 }
 
 .empty-cta:hover {
-  background-color: shade(@lyre_lavender, 1.08);
+  background-color: @lyre_lavender_dark;
 }
 
 /* hover heart on track rows */
@@ -636,7 +638,7 @@ window.dark .play-btn {
 }
 
 window.dark .play-btn:hover {
-  background-color: shade(@lyre_lavender_light, 1.08);
+  background-color: @lyre_lavender;
 }
 
 window.dark .progress-scale highlight,
@@ -655,7 +657,7 @@ window.dark .empty-cta {
 }
 
 window.dark .empty-cta:hover {
-  background-color: shade(@lyre_lavender_light, 1.08);
+  background-color: @lyre_lavender;
 }
 
 window.dark .heart-btn:hover,
