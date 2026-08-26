@@ -295,6 +295,84 @@
                 </child>
               </object>
             </child>
+            <child>
+              <object class="GtkBox" id="nav_player_controls">
+                <property name="visible">false</property>
+                <property name="valign">center</property>
+                <property name="spacing">2</property>
+                <style>
+                  <class name="nav-transport"/>
+                </style>
+                <child>
+                  <object class="GtkButton" id="nav_prev_btn">
+                    <property name="tooltip-text" translatable="yes">Previous</property>
+                    <property name="valign">center</property>
+                    <style>
+                      <class name="flat"/>
+                      <class name="circular"/>
+                      <class name="titlebar-icon"/>
+                    </style>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">lyre-seek-backward-symbolic</property>
+                        <property name="pixel-size">16</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="nav_play_btn">
+                    <property name="tooltip-text" translatable="yes">Play/Pause</property>
+                    <property name="valign">center</property>
+                    <style>
+                      <class name="flat"/>
+                      <class name="circular"/>
+                      <class name="titlebar-icon"/>
+                    </style>
+                    <child>
+                      <object class="GtkImage" id="nav_play_icon">
+                        <property name="icon-name">lyre-play-symbolic</property>
+                        <property name="pixel-size">18</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="nav_next_btn">
+                    <property name="tooltip-text" translatable="yes">Next</property>
+                    <property name="valign">center</property>
+                    <style>
+                      <class name="flat"/>
+                      <class name="circular"/>
+                      <class name="titlebar-icon"/>
+                    </style>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">lyre-seek-forward-symbolic</property>
+                        <property name="pixel-size">16</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="player_show_btn">
+                    <property name="tooltip-text" translatable="yes">Show player</property>
+                    <property name="valign">center</property>
+                    <style>
+                      <class name="flat"/>
+                      <class name="circular"/>
+                      <class name="titlebar-icon"/>
+                    </style>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">lyre-collapse-symbolic</property>
+                        <property name="pixel-size">16</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
           </object>
         </child>
 
@@ -537,6 +615,7 @@
                                         <property name="orientation">vertical</property>
                                         <property name="spacing">6</property>
                                         <property name="valign">center</property>
+                                        <property name="hexpand">true</property>
                                         <child>
                                           <object class="GtkLabel" id="detail_name_label">
                                             <property name="xalign">0</property>
@@ -551,6 +630,21 @@
                                             <style>
                                               <class name="detail-meta"/>
                                             </style>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkButton" id="detail_play_btn">
+                                        <property name="valign">center</property>
+                                        <property name="tooltip-text" translatable="yes">Play</property>
+                                        <style>
+                                          <class name="detail-play-btn"/>
+                                        </style>
+                                        <child>
+                                          <object class="AdwButtonContent">
+                                            <property name="icon-name">lyre-play-symbolic</property>
+                                            <property name="label" translatable="yes">Play</property>
                                           </object>
                                         </child>
                                       </object>
@@ -656,8 +750,30 @@
                     </style>
 
                     <child>
-                      <object class="GtkBox" id="player_art_slot">
+                      <object class="GtkOverlay" id="player_art_slot">
                         <property name="hexpand">true</property>
+                        <style>
+                          <class name="cover-hover"/>
+                        </style>
+                        <child type="overlay">
+                          <object class="GtkButton" id="player_collapse_btn">
+                            <property name="halign">end</property>
+                            <property name="valign">start</property>
+                            <property name="margin-top">8</property>
+                            <property name="margin-end">8</property>
+                            <property name="tooltip-text" translatable="yes">Hide player</property>
+                            <style>
+                              <class name="flat"/>
+                              <class name="cover-collapse-btn"/>
+                            </style>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">lyre-collapse-symbolic</property>
+                                <property name="pixel-size">16</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                       </object>
                     </child>
 

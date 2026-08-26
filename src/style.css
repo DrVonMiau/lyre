@@ -8,9 +8,11 @@
    IBM Plex Sans/Mono are bundled by the Flatpak manifest; the generic
    fallbacks only matter for non-Flatpak development runs. */
 
-/* Interactive accent */
-@define-color lyre_lavender #8a70bd;
-@define-color lyre_lavender_light #b6a3d8;
+/* Interactive accent — purple family: Purple 2 is the primary, Purple 1 the
+   lighter variation used on dark surfaces, Purple 3 the darker hover/pressed. */
+@define-color lyre_lavender #7567BE;
+@define-color lyre_lavender_light #9689DD;
+@define-color lyre_lavender_dark #4D428A;
 /* Favourites */
 @define-color lyre_gold #c1962b;
 @define-color lyre_gold_light #ddb964;
@@ -81,6 +83,14 @@ checkbutton radio:checked {
   padding-bottom: 2px;
 }
 
+/* Compact prev / play-pause / next + expand cluster shown beside the tabs
+   while the player panel is collapsed, set off by a hairline divider. */
+.nav-transport {
+  margin-left: 10px;
+  padding-left: 8px;
+  border-left: 1px solid alpha(@window_fg_color, 0.12);
+}
+
 .tab-btn {
   font-family: "IBM Plex Mono", monospace;
   font-size: 12px;
@@ -149,6 +159,24 @@ checkbutton radio:checked {
 .back-btn:hover {
   border-color: @lyre_lavender;
   color: @window_fg_color;
+}
+
+/* Play-the-whole-page button in the detail header — the lavender primary,
+   matching the transport play control. */
+.detail-play-btn {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  background-color: @lyre_lavender;
+  border-radius: 10px;
+  padding: 8px 18px;
+  box-shadow: none;
+}
+
+.detail-play-btn:hover {
+  background-color: @lyre_lavender_dark;
 }
 
 .eyebrow {
@@ -358,6 +386,28 @@ listview.track-cells {
   background: none;
 }
 
+/* Collapse button overlaid on the cover art, revealed when the cover is
+   hovered. A soft dark disc keeps the glyph legible over any artwork. */
+.cover-collapse-btn {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 4px;
+  border-radius: 999px;
+  color: #ffffff;
+  background-color: alpha(#000, 0.45);
+  box-shadow: none;
+  opacity: 0;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+
+.cover-hover:hover .cover-collapse-btn {
+  opacity: 1;
+}
+
+.cover-collapse-btn:hover {
+  background-color: alpha(#000, 0.7);
+}
+
 .upnext-row {
   padding: 6px 4px;
   border-radius: 7px;
@@ -403,14 +453,14 @@ listview.track-cells {
   padding: 8px;
   border-radius: 10px;
   color: alpha(@window_fg_color, 0.7);
-  background-color: alpha(@window_fg_color, 0.07);
+  background-color: alpha(@window_fg_color, 0.10);
   border: none;
   box-shadow: none;
 }
 
 .transport-box:hover {
   color: @window_fg_color;
-  background-color: alpha(@window_fg_color, 0.12);
+  background-color: alpha(@window_fg_color, 0.16);
 }
 
 .transport-box:checked {
@@ -445,7 +495,7 @@ listview.track-cells {
 }
 
 .play-btn:hover {
-  background-color: shade(@lyre_lavender, 1.08);
+  background-color: @lyre_lavender_dark;
 }
 
 /* Flatten GtkScale into a thin progress/volume bar with no visible handle,
@@ -458,8 +508,11 @@ listview.track-cells {
 .volume-scale {
   min-height: 2px;
   min-width: 4px;
-  /* hairline bar, but a comfortable click/drag target */
-  padding: 8px 0;
+  /* hairline bar, but a comfortable click/drag target. The horizontal
+     padding insets the trough by the knob's overhang (14px knob, -6px
+     margins → 7px reaches past each end) so the always-visible dot is
+     not clipped at 0% / 100%. */
+  padding: 8px 8px;
 }
 
 .progress-scale trough,
@@ -503,7 +556,7 @@ listview.track-cells {
 }
 
 .empty-cta:hover {
-  background-color: shade(@lyre_lavender, 1.08);
+  background-color: @lyre_lavender_dark;
 }
 
 /* hover heart on track rows */
@@ -518,7 +571,8 @@ listview.track-cells {
   box-shadow: none;
 }
 
-.track-row:hover .heart-btn {
+.track-row:hover .heart-btn,
+.upnext-row:hover .heart-btn {
   opacity: 1;
 }
 
@@ -580,6 +634,15 @@ window.dark .back-btn:hover {
   border-color: @lyre_lavender_light;
 }
 
+window.dark .detail-play-btn {
+  background-color: @lyre_lavender_light;
+  color: #1c1c1c;
+}
+
+window.dark .detail-play-btn:hover {
+  background-color: @lyre_lavender;
+}
+
 window.dark .eyebrow,
 window.dark .mono-dim,
 window.dark .mono-dim-sm,
@@ -633,7 +696,7 @@ window.dark .play-btn {
 }
 
 window.dark .play-btn:hover {
-  background-color: shade(@lyre_lavender_light, 1.08);
+  background-color: @lyre_lavender;
 }
 
 window.dark .progress-scale highlight,
@@ -652,7 +715,7 @@ window.dark .empty-cta {
 }
 
 window.dark .empty-cta:hover {
-  background-color: shade(@lyre_lavender_light, 1.08);
+  background-color: @lyre_lavender;
 }
 
 window.dark .heart-btn:hover,
