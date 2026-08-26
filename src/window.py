@@ -459,7 +459,7 @@ class MusicWindow(Adw.ApplicationWindow):
         revealed = has_track and not self._player_collapsed
         self._set_player_revealed(revealed)
         self.player_toggle_btn.set_visible(has_track)
-        self.player_toggle_icon.set_icon_name(
+        self.player_toggle_icon.set_from_icon_name(
             "go-previous-symbolic" if self._player_collapsed else "go-next-symbolic")
         self.player_toggle_btn.set_tooltip_text(
             "Show player" if self._player_collapsed else "Hide player")
