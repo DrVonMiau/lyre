@@ -378,6 +378,28 @@ listview.track-cells {
   background: none;
 }
 
+/* Collapse button overlaid on the cover art, revealed when the cover is
+   hovered. A soft dark disc keeps the glyph legible over any artwork. */
+.cover-collapse-btn {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 4px;
+  border-radius: 999px;
+  color: #ffffff;
+  background-color: alpha(#000, 0.45);
+  box-shadow: none;
+  opacity: 0;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+
+.cover-hover:hover .cover-collapse-btn {
+  opacity: 1;
+}
+
+.cover-collapse-btn:hover {
+  background-color: alpha(#000, 0.7);
+}
+
 .upnext-row {
   padding: 6px 4px;
   border-radius: 7px;

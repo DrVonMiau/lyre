@@ -141,24 +141,6 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="player_toggle_btn">
-                    <property name="tooltip-text" translatable="yes">Hide player</property>
-                    <property name="valign">center</property>
-                    <property name="visible">false</property>
-                    <style>
-                      <class name="flat"/>
-                      <class name="circular"/>
-                      <class name="titlebar-icon"/>
-                    </style>
-                    <child>
-                      <object class="GtkImage" id="player_toggle_icon">
-                        <property name="icon-name">go-next-symbolic</property>
-                        <property name="pixel-size">14</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
                   <object class="GtkMenuButton" id="menu_button">
                     <property name="icon-name">open-menu-symbolic</property>
                     <property name="tooltip-text" translatable="yes">Main Menu</property>
@@ -280,6 +262,24 @@
                         </style>
                       </object>
                     </property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="player_show_btn">
+                <property name="tooltip-text" translatable="yes">Show player</property>
+                <property name="valign">center</property>
+                <property name="visible">false</property>
+                <style>
+                  <class name="flat"/>
+                  <class name="circular"/>
+                  <class name="titlebar-icon"/>
+                </style>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">lyre-collapse-symbolic</property>
+                    <property name="pixel-size">16</property>
                   </object>
                 </child>
               </object>
@@ -690,8 +690,30 @@
                     </style>
 
                     <child>
-                      <object class="GtkBox" id="player_art_slot">
+                      <object class="GtkOverlay" id="player_art_slot">
                         <property name="hexpand">true</property>
+                        <style>
+                          <class name="cover-hover"/>
+                        </style>
+                        <child type="overlay">
+                          <object class="GtkButton" id="player_collapse_btn">
+                            <property name="halign">end</property>
+                            <property name="valign">start</property>
+                            <property name="margin-top">8</property>
+                            <property name="margin-end">8</property>
+                            <property name="tooltip-text" translatable="yes">Hide player</property>
+                            <style>
+                              <class name="flat"/>
+                              <class name="cover-collapse-btn"/>
+                            </style>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">lyre-collapse-symbolic</property>
+                                <property name="pixel-size">16</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                       </object>
                     </child>
 

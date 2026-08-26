@@ -115,8 +115,7 @@ class MusicWindow(Adw.ApplicationWindow):
     wc_start = Gtk.Template.Child()
     wc_end = Gtk.Template.Child()
     menu_button = Gtk.Template.Child()
-    player_toggle_btn = Gtk.Template.Child()
-    player_toggle_icon = Gtk.Template.Child()
+    player_show_btn = Gtk.Template.Child()
 
     middle_stack = Gtk.Template.Child()
     tab_albums = Gtk.Template.Child()
@@ -147,6 +146,7 @@ class MusicWindow(Adw.ApplicationWindow):
     player_revealer = Gtk.Template.Child()
     player_panel = Gtk.Template.Child()
     player_art_slot = Gtk.Template.Child()
+    player_collapse_btn = Gtk.Template.Child()
     now_title = Gtk.Template.Child()
     now_artist = Gtk.Template.Child()
     seek_scale = Gtk.Template.Child()
@@ -221,7 +221,8 @@ class MusicWindow(Adw.ApplicationWindow):
             btn.connect("clicked", lambda _b, k=key: self._select_tab(k))
         self.back_btn.connect("clicked", lambda *_: self._go_back())
         self.detail_play_btn.connect("clicked", lambda *_: self._play_detail())
-        self.player_toggle_btn.connect("clicked", lambda *_: self._toggle_player_collapsed())
+        self.player_collapse_btn.connect("clicked", lambda *_: self._toggle_player_collapsed())
+        self.player_show_btn.connect("clicked", lambda *_: self._toggle_player_collapsed())
         self.search_entry.connect("search-changed", self._on_search_changed)
 
         self.connect("realize", self._on_realize)
@@ -257,8 +258,7 @@ class MusicWindow(Adw.ApplicationWindow):
         controls, whichever side the system (or a theme switch) puts them."""
         settings = Gtk.Settings.get_default()
         layout = settings.get_property("gtk-decoration-layout") if settings else ""
-        aux = (self.volume_btn, self.volume_scale, self.player_toggle_btn,
-               self.menu_button)
+        aux = (self.volume_btn, self.volume_scale, self.menu_button)
         box = self.titlebar_box
         if self._close_button_is_left(layout):
             # window buttons on the left -> aux group to the right
@@ -337,7 +337,7 @@ class MusicWindow(Adw.ApplicationWindow):
         if self._player_art is None:
             self._player_art = Swatch("cover art", size=self.PLAYER_WIDTH)
             self._player_art.set_hexpand(True)
-            self.player_art_slot.append(self._player_art)
+            self.player_art_slot.set_child(self._player_art)
         album = lib.get_album(self.con, t.album_id) if t.album_id else None
         self._player_art.set_path((album["cover_path"] if album else None) or None)
         self._apply_player_visibility()
@@ -453,16 +453,13 @@ class MusicWindow(Adw.ApplicationWindow):
 
     def _apply_player_visibility(self):
         """Reveal the player when something is loaded, unless the user has
-        collapsed it. The titlebar toggle only appears while there is a track
-        to show, and its icon points the way the panel will move."""
+        collapsed it. The collapse button lives on the cover (hover-revealed);
+        when the panel is hidden, a compact restore button appears in the nav
+        bar so the panel can be brought back."""
         has_track = self.queue.current is not None
         revealed = has_track and not self._player_collapsed
         self._set_player_revealed(revealed)
-        self.player_toggle_btn.set_visible(has_track)
-        self.player_toggle_icon.set_from_icon_name(
-            "go-previous-symbolic" if self._player_collapsed else "go-next-symbolic")
-        self.player_toggle_btn.set_tooltip_text(
-            "Show player" if self._player_collapsed else "Hide player")
+        self.player_show_btn.set_visible(has_track and self._player_collapsed)
 
     def _toggle_player_collapsed(self):
         self._player_collapsed = not self._player_collapsed
@@ -1885,7 +1882,7 @@ class MusicWindow(Adw.ApplicationWindow):
         if self._player_art is None:
             self._player_art = Swatch("cover art", size=self.PLAYER_WIDTH)
             self._player_art.set_hexpand(True)
-            self.player_art_slot.append(self._player_art)
+            self.player_art_slot.set_child(self._player_art)
         album = lib.get_album(self.con, t.album_id) if t.album_id else None
         self._player_art.set_path((album["cover_path"] if album else None) or None)
 
