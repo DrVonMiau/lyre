@@ -153,6 +153,24 @@ checkbutton radio:checked {
   color: @window_fg_color;
 }
 
+/* Play-the-whole-page button in the detail header — the lavender primary,
+   matching the transport play control. */
+.detail-play-btn {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  background-color: @lyre_lavender;
+  border-radius: 10px;
+  padding: 8px 18px;
+  box-shadow: none;
+}
+
+.detail-play-btn:hover {
+  background-color: @lyre_lavender_dark;
+}
+
 .eyebrow {
   font-family: "IBM Plex Mono", monospace;
   font-size: 11px;
@@ -523,7 +541,8 @@ listview.track-cells {
   box-shadow: none;
 }
 
-.track-row:hover .heart-btn {
+.track-row:hover .heart-btn,
+.upnext-row:hover .heart-btn {
   opacity: 1;
 }
 
@@ -583,6 +602,15 @@ window.dark .paper {
 
 window.dark .back-btn:hover {
   border-color: @lyre_lavender_light;
+}
+
+window.dark .detail-play-btn {
+  background-color: @lyre_lavender_light;
+  color: #1c1c1c;
+}
+
+window.dark .detail-play-btn:hover {
+  background-color: @lyre_lavender;
 }
 
 window.dark .eyebrow,

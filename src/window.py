@@ -115,6 +115,8 @@ class MusicWindow(Adw.ApplicationWindow):
     wc_start = Gtk.Template.Child()
     wc_end = Gtk.Template.Child()
     menu_button = Gtk.Template.Child()
+    player_toggle_btn = Gtk.Template.Child()
+    player_toggle_icon = Gtk.Template.Child()
 
     middle_stack = Gtk.Template.Child()
     tab_albums = Gtk.Template.Child()
@@ -131,6 +133,7 @@ class MusicWindow(Adw.ApplicationWindow):
     playlist_grid = Gtk.Template.Child()
 
     detail_back_row = Gtk.Template.Child()
+    detail_play_btn = Gtk.Template.Child()
     back_btn = Gtk.Template.Child()
     detail_kind_label = Gtk.Template.Child()
     detail_hero_slot = Gtk.Template.Child()
@@ -184,6 +187,7 @@ class MusicWindow(Adw.ApplicationWindow):
         self._detail_album_ids = []
         self._detail_tracks = []
         self._player_art = None
+        self._player_collapsed = False
         self._search_query = ""
         self._artists_all = []
         self._albums_all = []
@@ -216,6 +220,8 @@ class MusicWindow(Adw.ApplicationWindow):
         for key, btn in self._tab_buttons.items():
             btn.connect("clicked", lambda _b, k=key: self._select_tab(k))
         self.back_btn.connect("clicked", lambda *_: self._go_back())
+        self.detail_play_btn.connect("clicked", lambda *_: self._play_detail())
+        self.player_toggle_btn.connect("clicked", lambda *_: self._toggle_player_collapsed())
         self.search_entry.connect("search-changed", self._on_search_changed)
 
         self.connect("realize", self._on_realize)
@@ -251,7 +257,8 @@ class MusicWindow(Adw.ApplicationWindow):
         controls, whichever side the system (or a theme switch) puts them."""
         settings = Gtk.Settings.get_default()
         layout = settings.get_property("gtk-decoration-layout") if settings else ""
-        aux = (self.volume_btn, self.volume_scale, self.menu_button)
+        aux = (self.volume_btn, self.volume_scale, self.player_toggle_btn,
+               self.menu_button)
         box = self.titlebar_box
         if self._close_button_is_left(layout):
             # window buttons on the left -> aux group to the right
@@ -333,7 +340,7 @@ class MusicWindow(Adw.ApplicationWindow):
             self.player_art_slot.append(self._player_art)
         album = lib.get_album(self.con, t.album_id) if t.album_id else None
         self._player_art.set_path((album["cover_path"] if album else None) or None)
-        self._set_player_revealed(True)
+        self._apply_player_visibility()
         self.play_icon.set_from_icon_name("lyre-play-symbolic")
         self._refresh_upnext()
 
@@ -443,6 +450,23 @@ class MusicWindow(Adw.ApplicationWindow):
     def _set_player_revealed(self, revealed):
         self.player_revealer.set_reveal_child(revealed)
         self._apply_layout_metrics()
+
+    def _apply_player_visibility(self):
+        """Reveal the player when something is loaded, unless the user has
+        collapsed it. The titlebar toggle only appears while there is a track
+        to show, and its icon points the way the panel will move."""
+        has_track = self.queue.current is not None
+        revealed = has_track and not self._player_collapsed
+        self._set_player_revealed(revealed)
+        self.player_toggle_btn.set_visible(has_track)
+        self.player_toggle_icon.set_icon_name(
+            "go-previous-symbolic" if self._player_collapsed else "go-next-symbolic")
+        self.player_toggle_btn.set_tooltip_text(
+            "Show player" if self._player_collapsed else "Hide player")
+
+    def _toggle_player_collapsed(self):
+        self._player_collapsed = not self._player_collapsed
+        self._apply_player_visibility()
 
     def _setup_help_overlay(self):
         builder = Gtk.Builder.new_from_resource("/io/github/drvonmiau/Lyre/gtk/help-overlay.ui")
@@ -733,12 +757,15 @@ class MusicWindow(Adw.ApplicationWindow):
         return row
 
     def _on_heart_clicked(self, row):
-        if row._track_id is None:
-            return
-        track = lib.get_track(self.con, row._track_id)
+        if row._track_id is not None:
+            self._toggle_favorite(row._track_id)
+
+    def _toggle_favorite(self, track_id):
+        track = lib.get_track(self.con, track_id)
         if track:
-            lib.set_favorite(self.con, row._track_id, not track["favorite"])
+            lib.set_favorite(self.con, track_id, not track["favorite"])
             self._reload_all()
+            self._refresh_upnext()
 
     def _fill_track_row(self, row, *, title, sub, album_text, duration, index, playing,
                         track_id=None, fav=False, album_id=None):
@@ -1290,7 +1317,7 @@ class MusicWindow(Adw.ApplicationWindow):
             self.player.stop()
             self.play_icon.set_from_icon_name("lyre-play-symbolic")
             self._update_inhibit(False)
-            self._set_player_revealed(False)
+            self._apply_player_visibility()
             self._reload_all()
             self._refresh_watchers()
             self._toast("Library deleted")
@@ -1799,7 +1826,7 @@ class MusicWindow(Adw.ApplicationWindow):
                 self.player.stop()
                 self.play_icon.set_from_icon_name("lyre-play-symbolic")
                 self._update_inhibit(False)
-                self._set_player_revealed(False)
+                self._apply_player_visibility()
             else:
                 q.current = fresh
                 self.now_title.set_label(fresh.title)
@@ -1833,6 +1860,12 @@ class MusicWindow(Adw.ApplicationWindow):
         self.queue.play(list(tracks[position:]))
         self._start_current()
 
+    def _play_detail(self):
+        """Play the current detail page (album / playlist / artist) from its
+        first track."""
+        if self._detail_tracks:
+            self._play_from(self._detail_tracks, 0)
+
     def _start_current(self):
         t = self.queue.current
         if not t:
@@ -1856,7 +1889,7 @@ class MusicWindow(Adw.ApplicationWindow):
         album = lib.get_album(self.con, t.album_id) if t.album_id else None
         self._player_art.set_path((album["cover_path"] if album else None) or None)
 
-        self._set_player_revealed(True)
+        self._apply_player_visibility()
         self.play_icon.set_from_icon_name("lyre-pause-symbolic")
         self._refresh_upnext()
         self._apply_filters()
@@ -1971,15 +2004,24 @@ class MusicWindow(Adw.ApplicationWindow):
             text_box.append(title_lbl)
             text_box.append(sub_lbl)
             duration_lbl = Gtk.Label(label=_fmt_time(t.duration), css_classes=["mono-dim-sm"])
+            db_track = lib.get_track(self.con, t.id)
+            is_fav = bool(db_track["favorite"]) if db_track else False
+            fav_btn = Gtk.Button(
+                icon_name="lyre-heart-filled-symbolic" if is_fav else "lyre-heart-symbolic",
+                valign=Gtk.Align.CENTER, tooltip_text="Favourite",
+                css_classes=["flat", "heart-btn"] + (["faved"] if is_fav else []))
+            fav_btn.connect("clicked", lambda _b, tid=t.id: self._toggle_favorite(tid))
             remove_btn = Gtk.Button(icon_name="window-close-symbolic", valign=Gtk.Align.CENTER,
                                      tooltip_text="Remove from queue",
                                      css_classes=["flat", "upnext-remove"])
             remove_btn.connect("clicked", lambda _b, pos=i: self._remove_upcoming(pos))
             row.set_cursor(POINTER_CURSOR)
+            fav_btn.set_cursor(POINTER_CURSOR)
             remove_btn.set_cursor(POINTER_CURSOR)
             row.append(index_lbl)
             row.append(text_box)
             row.append(duration_lbl)
+            row.append(fav_btn)
             row.append(remove_btn)
             gesture = Gtk.GestureClick(button=1)
             gesture.connect("released", lambda *_a, pos=i: self._play_upcoming(pos))
