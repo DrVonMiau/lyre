@@ -115,6 +115,11 @@ class MusicWindow(Adw.ApplicationWindow):
     wc_start = Gtk.Template.Child()
     wc_end = Gtk.Template.Child()
     menu_button = Gtk.Template.Child()
+    nav_player_controls = Gtk.Template.Child()
+    nav_prev_btn = Gtk.Template.Child()
+    nav_play_btn = Gtk.Template.Child()
+    nav_play_icon = Gtk.Template.Child()
+    nav_next_btn = Gtk.Template.Child()
     player_show_btn = Gtk.Template.Child()
 
     middle_stack = Gtk.Template.Child()
@@ -341,7 +346,7 @@ class MusicWindow(Adw.ApplicationWindow):
         album = lib.get_album(self.con, t.album_id) if t.album_id else None
         self._player_art.set_path((album["cover_path"] if album else None) or None)
         self._apply_player_visibility()
-        self.play_icon.set_from_icon_name("lyre-play-symbolic")
+        self._set_play_icon("lyre-play-symbolic")
         self._refresh_upnext()
 
     def _on_close_request(self, *_args):
@@ -459,7 +464,10 @@ class MusicWindow(Adw.ApplicationWindow):
         has_track = self.queue.current is not None
         revealed = has_track and not self._player_collapsed
         self._set_player_revealed(revealed)
-        self.player_show_btn.set_visible(has_track and self._player_collapsed)
+        # The compact prev / play-pause / next + expand cluster in the nav bar
+        # only appears while the panel is collapsed, so playback stays
+        # reachable without duplicating the panel's transport when it's open.
+        self.nav_player_controls.set_visible(has_track and self._player_collapsed)
 
     def _toggle_player_collapsed(self):
         self._player_collapsed = not self._player_collapsed
@@ -1312,7 +1320,7 @@ class MusicWindow(Adw.ApplicationWindow):
             self.queue.history.clear()
             self.queue.invalidate_peek()
             self.player.stop()
-            self.play_icon.set_from_icon_name("lyre-play-symbolic")
+            self._set_play_icon("lyre-play-symbolic")
             self._update_inhibit(False)
             self._apply_player_visibility()
             self._reload_all()
@@ -1821,7 +1829,7 @@ class MusicWindow(Adw.ApplicationWindow):
             if fresh is None:
                 q.current = None
                 self.player.stop()
-                self.play_icon.set_from_icon_name("lyre-play-symbolic")
+                self._set_play_icon("lyre-play-symbolic")
                 self._update_inhibit(False)
                 self._apply_player_visibility()
             else:
@@ -1838,6 +1846,9 @@ class MusicWindow(Adw.ApplicationWindow):
         self.play_btn.connect("clicked", lambda *_: self._toggle_play())
         self.prev_btn.connect("clicked", lambda *_: self._on_prev())
         self.next_btn.connect("clicked", lambda *_: self._advance())
+        self.nav_play_btn.connect("clicked", lambda *_: self._toggle_play())
+        self.nav_prev_btn.connect("clicked", lambda *_: self._on_prev())
+        self.nav_next_btn.connect("clicked", lambda *_: self._advance())
         self.shuffle_btn.connect("toggled", lambda b: setattr(self.queue, "shuffle", b.get_active()))
         self.repeat_btn.connect("toggled", lambda b: setattr(self.queue, "repeat", b.get_active()))
         self.upnext_clear_btn.connect("clicked", lambda *_: self._clear_upnext())
@@ -1887,7 +1898,7 @@ class MusicWindow(Adw.ApplicationWindow):
         self._player_art.set_path((album["cover_path"] if album else None) or None)
 
         self._apply_player_visibility()
-        self.play_icon.set_from_icon_name("lyre-pause-symbolic")
+        self._set_play_icon("lyre-pause-symbolic")
         self._refresh_upnext()
         self._apply_filters()
         lib.record_play(self.con, t.id)
@@ -1970,7 +1981,7 @@ class MusicWindow(Adw.ApplicationWindow):
             self._start_current()
         else:
             self.player.stop()
-            self.play_icon.set_from_icon_name("lyre-play-symbolic")
+            self._set_play_icon("lyre-play-symbolic")
             self._update_inhibit(False)
             self._refresh_upnext()
             self._apply_filters()
@@ -2074,16 +2085,22 @@ class MusicWindow(Adw.ApplicationWindow):
         self._toggle_play()
         return True
 
+    def _set_play_icon(self, name):
+        """Keep the panel's play/pause glyph and the nav-bar mini control in
+        sync."""
+        self.play_icon.set_from_icon_name(name)
+        self.nav_play_icon.set_from_icon_name(name)
+
     def _toggle_play(self):
         if not self.queue.current:
             return
         if self.player.is_playing():
             self.player.pause()
-            self.play_icon.set_from_icon_name("lyre-play-symbolic")
+            self._set_play_icon("lyre-play-symbolic")
             self._update_inhibit(False)
         else:
             self.player.play()
-            self.play_icon.set_from_icon_name("lyre-pause-symbolic")
+            self._set_play_icon("lyre-pause-symbolic")
             self._update_inhibit(True)
         self._apply_filters()
         if getattr(self, "mpris", None):
