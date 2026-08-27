@@ -1,6 +1,8 @@
 """MPRIS (org.mpris.MediaPlayer2) D-Bus service: makes media keys work and
 shows Lyre in the desktop's sound menu / lock screen with track metadata.
 """
+import sys
+
 from gi.repository import Gio, GLib
 
 BUS_NAME = "org.mpris.MediaPlayer2.Lyre"
@@ -63,6 +65,14 @@ class MprisServer:
     def __init__(self, window):
         self.window = window
         self._connection = None
+        self._node = None
+        # MPRIS is a Linux desktop integration built on the D-Bus session bus
+        # (media keys, the sound menu, lock-screen controls). Other platforms
+        # such as macOS have no session bus, so skip it entirely rather than
+        # provoke a slow, failing D-Bus autolaunch. update()/notify_seeked()
+        # already no-op while _connection stays None, so playback is unaffected.
+        if not sys.platform.startswith("linux"):
+            return
         self._node = Gio.DBusNodeInfo.new_for_xml(INTROSPECTION_XML)
         try:
             Gio.bus_own_name(

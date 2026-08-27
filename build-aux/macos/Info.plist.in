@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleName</key>
+	<string>Lyre</string>
+	<key>CFBundleDisplayName</key>
+	<string>Lyre</string>
+	<key>CFBundleIdentifier</key>
+	<string>io.github.drvonmiau.Lyre</string>
+	<key>CFBundleVersion</key>
+	<string>@VERSION@</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@VERSION@</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleExecutable</key>
+	<string>Lyre</string>
+	<key>CFBundleIconFile</key>
+	<string>Lyre.icns</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>LSMinimumSystemVersion</key>
+	<string>11.0</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.music</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 Daniel. GNU GPL v3 or later.</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Audio file</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.audio</string>
+				<string>public.mp3</string>
+				<string>com.apple.m4a-audio</string>
+				<string>org.xiph.flac</string>
+				<string>public.ogg-audio</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
