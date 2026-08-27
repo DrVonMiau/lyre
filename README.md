@@ -66,22 +66,24 @@ flatpak run io.github.drvonmiau.Lyre
 
 ## macOS
 
-Lyre runs on macOS as a native `Lyre.app` bundle built from the very same
-source — there's no separate Mac codebase to maintain. The GTK4, libadwaita
-and GStreamer stack comes from [Homebrew](https://brew.sh); the build script
-compiles the app's resources, bundles its Python dependencies, and assembles
-a double-clickable app.
+Lyre runs on macOS as a `Lyre.app` bundle built from the very same source —
+there's no separate Mac codebase to maintain. There are two builds, and both
+run on a Mac with [Homebrew](https://brew.sh) installed:
 
 ```sh
-# On a Mac with Homebrew installed:
-build-aux/macos/build-app.sh          # installs deps, produces dist/Lyre.app
+# A self-contained .dmg you can hand to anyone (no Homebrew needed to RUN it):
+build-aux/macos/bundle-standalone.sh   # -> dist/Lyre-<version>.dmg
+
+# Or a lighter build for your own dev machine (uses your Homebrew GTK):
+build-aux/macos/build-app.sh           # -> dist/Lyre.app
 open dist/Lyre.app
 ```
 
-Pass `--dmg` to also produce a distributable `dist/Lyre-<version>.dmg`, or
-`--skip-deps` if you've already installed the Homebrew packages. See
-[`build-aux/macos/README.md`](build-aux/macos/README.md) for details and
-troubleshooting.
+The `.dmg` embeds the whole GTK/GStreamer/Python stack; users drag Lyre to
+Applications and, on first launch, right-click → **Open** once (it's ad-hoc
+signed but not Apple-notarized). See
+[`build-aux/macos/README.md`](build-aux/macos/README.md) for details,
+distribution notes, and troubleshooting.
 
 The Linux-only integrations (MPRIS media-key/sound-menu control) are skipped
 automatically on macOS; everything else — the library, gapless playback,

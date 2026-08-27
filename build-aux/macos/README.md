@@ -2,11 +2,21 @@
 
 Lyre is a Python + GTK4 / libadwaita / GStreamer application. On macOS it runs
 as a `Lyre.app` bundle built from the **same source** as the Linux/Flatpak
-build — there is deliberately no second, native codebase to keep in sync.
-`build-app.sh` reuses `src/` as-is, so anything you change on Linux flows into
-the Mac app the next time you run the script.
+build — there is deliberately no second, native codebase to keep in sync. The
+build scripts reuse `src/` as-is, so anything you change on Linux flows into the
+Mac app the next time you build.
 
-## How it works
+There are two builds, for two different audiences:
+
+| Script                 | Output                          | Runs on a Mac that has… | Use it for            |
+| ---------------------- | ------------------------------- | ----------------------- | --------------------- |
+| `build-app.sh`         | `dist/Lyre.app` (Homebrew-wired) | Homebrew + the GTK deps | your own dev machine  |
+| `bundle-standalone.sh` | `dist/Lyre-<v>.dmg` (self-contained) | nothing (any Mac)  | giving it to people   |
+
+Both are described below. If you just want to hand someone a file they can run,
+you want **`bundle-standalone.sh`**.
+
+## The Homebrew build (`build-app.sh`)
 
 The GTK stack itself (GTK4, libadwaita, GStreamer, PyGObject, librsvg, the
 Adwaita icon theme) is provided by [Homebrew](https://brew.sh). The bundle is
@@ -34,10 +44,9 @@ with Homebrew's `python3`.
 
 This keeps maintenance low: no dylib relocation, no jhbuild, no vendored GTK.
 The trade-off is that the resulting `.app` expects Homebrew and its GTK
-formulae to be present on the machine that runs it (fine for your own Macs and
-for developer distribution). A fully self-contained, notarizable bundle would
-need the libraries copied in and code-signed — a possible future step, not
-required to run.
+formulae to be present on the machine that runs it — which is why it's the
+*developer* build. For a copy other people can run, use the standalone build
+below.
 
 ## Requirements
 
@@ -70,6 +79,49 @@ Options:
 
 The app version is read from the top-level `meson.build`, so it stays in step
 with the Linux release.
+
+## The standalone build (`bundle-standalone.sh`)
+
+This produces a `Lyre.app` (and a drag-to-install `.dmg`) with the **entire**
+Python + GTK4 / libadwaita / GStreamer stack embedded, so it runs on any Mac
+with no Homebrew. You still build it on a Mac that *has* Homebrew and the GTK
+formulae — Homebrew is only the source of the libraries that get copied in.
+
+```sh
+build-aux/macos/bundle-standalone.sh    # -> dist/Lyre-<version>.dmg
+```
+
+Under the hood it uses [PyInstaller](https://pyinstaller.org): it embeds the
+Python interpreter and rewrites the linked libraries to load from inside the
+bundle, and `lyre.spec` + `pyi-rthook.py` add the runtime-loaded pieces
+PyInstaller can't infer — the gdk-pixbuf loaders, GStreamer plugins, GSettings
+schemas, the Adwaita icon theme and the IBM Plex fonts. The bundle is **ad-hoc
+signed** (Apple Silicon refuses to launch an unsigned binary) but **not
+notarized**, because that needs a paid Apple Developer account.
+
+Flags: `--skip-deps` (skip the Homebrew check), `--no-dmg` (just the `.app`).
+
+### Installing it (what your users do)
+
+1. Open the `.dmg` and drag **Lyre** to **Applications**.
+2. First launch only: right-click (or Control-click) `Lyre.app` → **Open** →
+   **Open** in the dialog. macOS remembers the choice; after that it's a normal
+   double-click.
+
+   The right-click step is the Gatekeeper toll for an app that isn't notarized.
+   The alternative, if you'd rather script it, is to clear the quarantine flag:
+   `xattr -dr com.apple.quarantine /Applications/Lyre.app`.
+
+## About the window chrome
+
+Lyre uses GTK4/libadwaita, which draws its **own** window header bar and
+controls (client-side decorations) rather than a native Cocoa title bar. On
+macOS the window buttons are moved to the left to match where the traffic
+lights sit, but they're still GTK-drawn, so the chrome reads as GNOME-ish
+rather than pixel-native — the same as other GTK apps on the Mac (GIMP,
+Inkscape). This is a hard limit of the toolkit, not something a build flag can
+change; truly native chrome would mean a native (e.g. SwiftUI) rewrite. If the
+GTK header bar bothers you, that's the trade-off for keeping one codebase.
 
 ## Troubleshooting
 

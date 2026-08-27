@@ -30,6 +30,14 @@ class MusicPlayerApp(Adw.Application):
 
     def do_startup(self):
         Adw.Application.do_startup(self)
+        if sys.platform == "darwin":
+            # GTK draws its own window controls; on macOS put them on the left,
+            # where the traffic-light buttons live, so the header bar reads as a
+            # Mac window rather than a GNOME one.
+            settings = Gtk.Settings.get_default()
+            if settings is not None:
+                settings.set_property(
+                    "gtk-decoration-layout", "close,minimize,maximize:")
         provider = Gtk.CssProvider()
         provider.load_from_resource("/io/github/drvonmiau/Lyre/style.css")
         Gtk.StyleContext.add_provider_for_display(

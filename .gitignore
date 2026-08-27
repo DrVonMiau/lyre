@@ -3,3 +3,5 @@ __pycache__/
 _flatpak/
 .flatpak-builder/
 dist/
+build/
+build-aux/macos/_staging/
