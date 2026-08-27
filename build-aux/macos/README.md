@@ -116,12 +116,18 @@ Flags: `--skip-deps` (skip the Homebrew check), `--no-dmg` (just the `.app`).
 
 Lyre uses GTK4/libadwaita, which draws its **own** window header bar and
 controls (client-side decorations) rather than a native Cocoa title bar. On
-macOS the window buttons are moved to the left to match where the traffic
-lights sit, but they're still GTK-drawn, so the chrome reads as GNOME-ish
-rather than pixel-native — the same as other GTK apps on the Mac (GIMP,
-Inkscape). This is a hard limit of the toolkit, not something a build flag can
-change; truly native chrome would mean a native (e.g. SwiftUI) rewrite. If the
-GTK header bar bothers you, that's the trade-off for keeping one codebase.
+macOS the window buttons are moved to the left and restyled into red/amber/green
+**traffic-light buttons** (the `.macos` rules in `src/style.css`, applied when
+the app detects macOS), with the close/minimise/maximise glyphs surfacing on
+hover — so the window reads as a Mac window at a glance.
+
+This is a close cosmetic approximation, not true native chrome: the buttons are
+still GTK-drawn, so on close inspection they won't be pixel-identical to Cocoa's
+and the surrounding header bar is still libadwaita's. Getting *genuinely* native
+chrome (real Cocoa traffic lights and a unified titlebar) isn't possible from
+GTK — it would require a native (e.g. SwiftUI/AppKit) UI, i.e. a second
+codebase. The traffic-light styling is the pragmatic middle ground that keeps
+one codebase.
 
 ## Troubleshooting
 

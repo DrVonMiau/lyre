@@ -722,3 +722,54 @@ window.dark .heart-btn:hover,
 window.dark .heart-btn.faved {
   color: @lyre_gold_light;
 }
+
+/* ---- macOS traffic-light window controls ---------------------------------
+   Only applied when the window carries the .macos class (set at startup on
+   macOS). GTK draws the window buttons itself — there's no native Cocoa
+   titlebar to borrow — so we restyle those buttons into red/amber/green
+   circles, with the close/minimise/maximise glyphs surfacing on hover, the
+   way macOS does it. The controls already sit on the left via the macOS
+   decoration layout. */
+.macos windowcontrols {
+  padding: 0;
+}
+
+.macos windowcontrols button.titlebutton {
+  min-width: 13px;
+  min-height: 13px;
+  margin: 0 4px;
+  padding: 0;
+  border: none;
+  border-radius: 100%;
+  background-image: none;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  -gtk-icon-size: 9px;
+  transition: background-color 120ms ease;
+}
+
+.macos windowcontrols button.close    { background-color: #ff5f57; }
+.macos windowcontrols button.minimize { background-color: #febc2e; }
+.macos windowcontrols button.maximize { background-color: #28c840; }
+
+.macos windowcontrols button.close:hover    { background-color: #ff4d4a; }
+.macos windowcontrols button.minimize:hover { background-color: #f5b016; }
+.macos windowcontrols button.maximize:hover { background-color: #24b539; }
+
+/* Glyphs appear only while pointing at the controls, as on macOS. */
+.macos windowcontrols button.titlebutton image {
+  color: transparent;
+}
+
+.macos windowcontrols:hover button.titlebutton image {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+/* Grey out when the window loses focus, again matching macOS. */
+.macos windowcontrols button.titlebutton:backdrop {
+  background-color: #d4d4d4;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.macos windowcontrols:backdrop button.titlebutton image {
+  color: transparent;
+}

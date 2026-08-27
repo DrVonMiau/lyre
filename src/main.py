@@ -58,6 +58,10 @@ class MusicPlayerApp(Adw.Application):
     def do_activate(self):
         if self.window is None:
             self.window = MusicWindow(application=self)
+            if sys.platform == "darwin":
+                # Opt the window into the macOS look: traffic-light window
+                # controls (see the .macos rules in style.css).
+                self.window.add_css_class("macos")
         self.window.present()
 
     def _show_about(self):
