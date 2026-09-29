@@ -6,7 +6,7 @@
 	<name>Lyre</name>
 	<summary>Play your local music</summary>
 	<developer id="io.github.drvonmiau">
-		<name>Daniel</name>
+		<name>Dr. von Miau</name>
 	</developer>
 	<description>
 	  <p>
@@ -22,6 +22,13 @@
 	    <li>Media-key, sound-menu and lock-screen controls (MPRIS)</li>
 	    <li>Folder watching, sleep timer, light and dark themes</li>
 	  </ul>
+	  <p>
+	    Lyre reads and writes your Music folder so it can play your files
+	    and save tag edits into them, and it can reach network shares and
+	    phones mounted in Files. It reads your system's icon theme so its
+	    buttons match your desktop, and uses the network only to find
+	    missing cover art and artist details.
+	  </p>
 	</description>
 	<launchable type="desktop-id">io.github.drvonmiau.Lyre.desktop</launchable>
 	<content_rating type="oars-1.1"/>
