@@ -46,18 +46,19 @@ portable.
 
 ## Install
 
-Grab the latest `.flatpak` bundle from the
-[**Releases**](https://github.com/DrVonMiau/lyre/releases) page, then install
-and run it:
+Get Lyre from **<https://drvonmiau.github.io/lyre/>** — the Install button opens GNOME Software, and
+updates then arrive like any other app's. Or from a terminal:
 
 ```sh
-flatpak install --user io.github.drvonmiau.Lyre.flatpak
-flatpak run io.github.drvonmiau.Lyre
+flatpak remote-add --user --if-not-exists lyre https://drvonmiau.github.io/lyre/index.flatpakrepo
+flatpak install --user lyre io.github.drvonmiau.Lyre
 ```
 
-The first command may offer to pull in the GNOME runtime the app needs — say
-yes. You only need [Flatpak](https://flatpak.org/setup/) installed, which most
-Linux distributions already have.
+You only need [Flatpak](https://flatpak.org/setup/), which most Linux
+distributions already have. Lyre isn't on Flathub, which doesn't accept apps
+made with AI assistance; it ships from its own signed repository instead.
+Each [release](https://github.com/DrVonMiau/lyre/releases) also carries a
+single-file `.flatpak` bundle, which doesn't update itself.
 
 ## Building from source
 
